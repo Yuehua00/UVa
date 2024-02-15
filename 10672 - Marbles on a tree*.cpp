@@ -9,16 +9,6 @@ using namespace std;
 
 typedef unsigned long long int ull;
 typedef long long int ll;
-
-struct Tree{
-    int marbles;
-    vector<int> subtree;
-
-    bool operator< (const Tree a){
-        return subtree.size() > a.subtree.size();
-    }
-};
-
 int degree[10000 + 5], marbles[10000+5], parent[10000+5];
 
 int main()

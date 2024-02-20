@@ -1,4 +1,5 @@
 // Greedy
+// 參考 : https://mypaper.pchome.com.tw/zerojudge/post/1324807908
 #include <iostream>
 
 using namespace std;

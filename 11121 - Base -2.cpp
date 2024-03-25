@@ -24,7 +24,7 @@ int main()
 
         int cnt = 0;
         while(n){
-            // cout<< n % (-2) << endl;
+            //cout<< n % (-2) << endl;
             arr[cnt] = n % (-2);
             n /= (-2);
             if(arr[cnt] == -1){

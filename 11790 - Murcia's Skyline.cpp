@@ -10,6 +10,8 @@ int h[MAXN], w[MAXN];
 
 int main()
 {
+    freopen("in.txt", "r", stdin);
+    freopen("out.txt", "w", stdout);
     int kase = 0, n = 0, a = 0;
     scanf("%d", &kase);
     for(int k = 1; k <= kase; k++){
@@ -45,10 +47,10 @@ int main()
             mi = max(mi, dpd[i]);
         }
 
-        if(ma > mi){
-            printf("Increasing (%d). Decreasing(%d).\n", ma, mi);
+        if(ma >= mi){
+            printf("Increasing (%d). Decreasing (%d).\n", ma, mi);
         }else{
-            printf("Decreasing(%d). Increasing (%d).\n", mi, ma);
+            printf("Decreasing (%d). Increasing (%d).\n", mi, ma);
         }
 
     }

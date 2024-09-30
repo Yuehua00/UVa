@@ -1,150 +1,117 @@
 // dinic
 
 #include <iostream>
-#include <queue>
-#include <CString>
 #include <vector>
+#include <string.h>
+#include <queue>
+#define MAXN 50+10
+#define INF 0x3f3f3f3f
+#define eb emplace_back
 
 using namespace std;
 
-#define maxn 50+5
-#define INF  0x3f3f3f3f
-
-struct Edge
-{
+struct Edge{
     int from, to, cap, flow;
 };
 
-int n, m, s, t;
 vector<Edge> edges;
-vector<int> G[maxn];
-bool visited[maxn];
-int d[maxn];
-int cur[maxn];
-int own[maxn][maxn];
+vector<int> G[MAXN];
+int d[MAXN];
+int cur[MAXN];
+int own[MAXN][MAXN];
+bool visited[MAXN];
+int m, n, t, s;
 
-void AddEdge(int from, int to, int cap)
-{
-    edges.push_back((Edge) {from, to, cap, 0});
-    m=edges.size();
-    G[from].push_back(m-1);
+void AddEdge(int from, int to, int cap){
+    edges.eb((Edge){from, to, cap, 0});
+    edges.eb((Edge){to, from, 0, 0});
+    m = edges.size();
+    G[to].eb(m-1);
+    G[from].eb(m-2);
 }
 
-bool BFS()
-{
+bool BFS(){
+    int tmp;
     memset(visited, false, sizeof(visited));
     queue<int> Q;
-    Q.push(s);
-    d[s]=0;
-    visited[s]=true;
+    Q.push(s); visited[s] = true; d[s] = 0;
 
-    while(!Q.empty())
-    {
-        int x=Q.front();
-        Q.pop();
-
-        for(int i=0; i<G[x].size(); i++)
-        {
-            Edge e=edges[G[x][i]];
-            if ( !visited[e.to] && (e.cap>e.flow) )
-            {
-                visited[e.to]=true;
-                d[e.to]=d[x]+1;
+    while(!Q.empty()){
+        tmp = Q.front(); Q.pop();
+        for(int i = 0; i < G[tmp].size(); i++){
+            Edge e = edges[G[tmp][i]];
+            if(!visited[e.to] && e.cap > e.flow){
                 Q.push(e.to);
+                visited[e.to] = true;
+                d[e.to] = d[tmp] + 1;
             }
         }
     }
-    return(visited[t]);
+
+    return visited[t];
 }
 
-int DFS(int x, int a)
-{
-    if(x==t || a==0)
-        return a;
+int DFS(int u, int a){
 
-    int flow=0, f;
+    if(u == t || a == 0) return a;
 
-    for (int& i=cur[x]; i<G[x].size(); i++)
-    {
-        Edge& e=edges[G[x][i]];
-        if(d[e.to]==(d[x]+1))
-        {
-            if ((f=DFS(e.to, min(a, e.cap-e.flow)))>0)
-            {
-                e.flow+=f;
-                flow+=f;
-                a-=f;
-                if(a==0) break;
-            }
+    int f = 0, flow = 0;
+    for(int& i = cur[u]; i < G[u].size(); i++){
+        Edge& e = edges[G[u][i]];
+        if(d[e.to] == d[u]+1 && (f = DFS(e.to, min(a, e.cap-e.flow)))> 0){
+            flow += f;
+            a -= f;
+            e.flow += f;
+            edges[G[u][i]^1].flow -= f;
+            if(!a) break;
         }
     }
     return flow;
 }
 
-int dinic_Maxflow(int s, int t)
-{
-    int max_flow=0;
-
-    while(BFS())
-    {
+int dicnic_MaxFlow(int s, int t){
+    int max_flow = 0;
+    while(BFS()){
         memset(cur, 0, sizeof(cur));
-        max_flow+=DFS(s, INF);
+        max_flow += DFS(s, INF);
     }
+
     return max_flow;
 }
 
 int main()
 {
-    freopen("d:\\10779_in.txt", "r", stdin);
-    freopen("d:\\10779_out_t.txt", "w", stdout);
 
-    int T;
-    scanf("%d", &T);
-    int Cas=1;
-
-    while (T-->0)
-    {
-        int n, m;
-        scanf("%d %d", &n, &m);
-
-        s=0, t=n+m;
-
-        for (int i=0; i<maxn; i++)
-            G[i].clear();
-
+    //freopen("in.txt", "r", stdin);
+    //freopen("out.txt", "w",stdout);
+    int kase = 0, p = 0, c = 0, have = 0, a = 0;
+    scanf("%d", &kase);
+    for(int k = 1; k <= kase; k++){
         memset(own, 0, sizeof(own));
+        memset(d, 0, sizeof(d));
+        edges.clear();
+        for(int i = 0; i < MAXN; i++) G[i].clear();
 
-        for(int i=0; i<n; i++)
-        {
-            int num;
-            scanf("%d", &num);
-            while(num--)
-            {
-                int j;
-                scanf("%d", &j);
-                own[i][j]++;
+        scanf("%d%d", &p, &c);
+        s = 0; t = p+c;
+        for(int i = 0; i < p; i++){
+            scanf("%d", &have);
+            for(int j = 0; j < have; j++){
+                scanf("%d", &a);
+                own[i][a]++;
             }
         }
-
-        for(int j=1; j<=m; j++)
-            if (own[0][j]!=0)
-                AddEdge(0, n+j-1, own[0][j]);
-
-        for(int i=1; i<n; i++)
-        {
-            for(int j=1; j<=m; j++)
-            {
-                if(own[i][j]>1)
-                    AddEdge(i, n+j-1, own[i][j]-1);
-                else if(!own[i][j])
-                    AddEdge(n+j-1, i, 1);
+        for(int i = 1; i <= c; i++){
+            if(own[0][i]) AddEdge(0, i+p-1, own[0][i]);
+            AddEdge(i+p-1, t, 1);
+        }
+        for(int i = 1; i < p; i++){
+            for(int j = 1; j <= c; j++){
+                if(own[i][j] > 1) AddEdge(i, j+p-1, own[i][j]-1);
+                else if(!own[i][j]) AddEdge(j+p-1, i, 1);
             }
         }
-
-        for(int i=n; i<n+m; i++)
-            AddEdge(i, t, 1);
-
-        printf("Case #%d: %d\n",Cas++ ,dinic_Maxflow(s, t));
+        printf("Case #%d: %d\n", k, dicnic_MaxFlow(s, t));
     }
 
     return 0;

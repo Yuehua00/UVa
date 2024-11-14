@@ -1,56 +1,38 @@
 // 求字串當中最少能切成幾段迴文
-// 參考來源 : Fish (同學)
-
-#include <iostream>
-#include <string.h>
-#define MAXN 1000+5
+#include <bits/stdc++.h>
+#define MAXN 1000+10
 
 using namespace std;
 
-int n = 0;
 string s;
-int dp[MAXN], pal[MAXN][MAXN];
+int is_pal[MAXN][MAXN];
+int dp[MAXN];      // 從 0 開始至 idx 切成迴文的數量
 
 int main()
 {
+    //freopen("in.txt", "r", stdin);
+    //freopen("out.txt", "w", stdout);
+    int n = 0;
     scanf("%d", &n);
     while(n--){
         cin >> s;
-        memset(dp, 0, sizeof(dp));
-        memset(pal, 0, sizeof(pal));
-        int len = s.length();
-
-        for(int i = 0; i < len; i++){ // 初始化
-            pal[i][i] = 1;
-            pal[i+1][i] = 1;
+        memset(is_pal, 0, sizeof(is_pal));
+        for(int i = 0; i < s.size(); i++){        // 處理一個字與兩個相鄰字是否為迴文
+            is_pal[i][i] = 1;
+            if(s[i] == s[i+1]) is_pal[i][i+1] = 1;
         }
-
-        int a = 0, b = 1, cnt = 1;
-        while(cnt < len){
-            for(b = a+cnt; b < len; b++){    // 找出字串當中屬於迴文的部分
-                if(pal[a+1][b-1] && s[a] == s[b]){  // 如果之間是迴文 && 前後字母相同
-                    pal[a][b] = 1;
-                }
-                a++;
-            }
-            cnt++;
-            a = 0;
-        }
-        dp[0] = 1;
-        for(int i = 1; i < len; i++){
-            dp[i] = dp[i-1] + 1;
-            if(pal[0][i]){
-                dp[i] = 1;
-                continue;
-            }
-            for(int j = 1; j < i; j++){
-                if(pal[j][i]){
-                    dp[i] = min(dp[i], dp[j-1]+1);   // ans[j-1] 表示從索引 0 到 j-1 的最少分割次數，加上 1 表示將 j 到 i 的部分作為一個新的回文子字符串分割出來
-                }
+        for(int i = 2; i < s.size(); i++){       // 處理 3 至 n 個字是否為迴文
+            for(int j = 0; j+i < s.size(); j++){
+                if(is_pal[j+1][i+j-1] && s[i+j] == s[j]) is_pal[j][i+j] = 1;
             }
         }
-        printf("%d\n", dp[len-1]);
-
+        for(int i = 0; i < s.size(); i++){
+            dp[i] = i+1;                        // 初始化，都先設為最大可能
+            for(int j = 0; j <= i; j++){
+                if(is_pal[j][i]) dp[i] = min(dp[i], dp[j-1]+1); 
+            }
+        }
+        printf("%d\n", dp[s.size()-1]);
     }
 
     return 0;
